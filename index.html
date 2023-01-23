@@ -1,0 +1,58 @@
+<head>
+	<script type="module" src="./index.js"></script>
+	<style>
+		canvas {
+			background: #3A3335;
+		}
+
+		body,
+		html {
+			margin: 0;
+			padding: 0;
+			background-color: #201D1E;
+			color: #FAF3DD;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+
+		.wrapper {
+			display: inline-flex;
+			justify-content: center;
+			min-width: 100%;
+		}
+
+		main {
+			display: inline-flex;
+			padding: 20px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+			width: 300px;
+		}
+
+		.top {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+		}
+
+		h1 {
+			font-weight: bold;
+			font-size: xx-large;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper">
+		<main>
+			<div class="top">
+				<h1>Snake</h1>
+				<h1 id="score">0</h1>
+			</div>
+			<canvas width="300" height="300" id="snake"></canvas>
+			<p>
+				Use arrow keys or WASD to move, and space to pause.
+			</p>
+		</main>
+	</div>
+</body>
