@@ -3,6 +3,10 @@ const W = 16;
 const H = 16;
 const SNAKE_COLOR = "#E8DDB5";
 const APPLE_COLOR = "#EDAFB8";
+const DOWN = [0, 1];
+const UP = [0, -1];
+const LEFT = [-1, 0];
+const RIGHT = [1, 0];
 
 // elem
 const id = document.getElementById.bind(document);
@@ -15,6 +19,7 @@ const snake = [[Math.floor(W / 2), Math.floor(H / 2)]];
 const apples = [];
 
 let score = 0;
+let bot = false;
 let over = false;
 
 const dirQue = [];
@@ -33,6 +38,7 @@ let interval = setInterval(() => {
     clearInterval(interval);
     return;
   }
+  if (bot) botMove();
   const newDir = dirQue.shift();
   const valid = newDir && !(dir && vecEquals(vecSum(newDir, dir), [0, 0]));
   if (valid) dir = newDir;
@@ -45,13 +51,16 @@ let interval = setInterval(() => {
 document.onkeydown = (e) => {
   if (e.key === " ") {
     alert("Game is paused.");
+    return;
+  } else if (e.key === "b") {
+    bot = true;
   }
 
   const keyMap = {
-    w: [0, -1],
-    s: [0, 1],
-    a: [-1, 0],
-    d: [1, 0],
+    w: UP,
+    s: DOWN,
+    a: LEFT,
+    d: RIGHT,
   };
   keyMap.ArrowUp = keyMap.w;
   keyMap.ArrowDown = keyMap.s;
@@ -95,6 +104,25 @@ function newApple() {
   apples.push(pos);
 }
 
+function botMove() {
+  const [x, y] = snake.at(-1);
+  if (x === 0 && y % 2 === 1) {
+    // on the left side make a U-turn
+    dirQue.push(UP);
+    dirQue.push(RIGHT);
+  } else if (x === W - 2 && y !== 0 && y % 2 === 0) {
+    // on almost the right side make a U-turn, except at the top
+    dirQue.push(UP);
+    dirQue.push(LEFT);
+  } else if (y === 0 && x === W - 1) {
+    // at the top right turn down
+    dirQue.push(DOWn);
+  } else if (y === H - 1 && x === W - 1) {
+    // at the bottom right turn left
+    dirQue.push(LEFT);
+  }
+}
+
 function emptySpace(pos) {
   const [x, y] = pos;
   return (
@@ -108,20 +136,47 @@ function emptySpace(pos) {
 }
 
 function draw() {
-  const mx = canvas.width / W;
+  const mx = canvas.width / W; // cell size
   const my = canvas.height / H;
+
+  let eyeY = (1 / 5) * my;
+  const eyeH = (1 / 5) * my;
+  let eyeX = (1 / 5) * mx;
+  const eyeW = (1 / 5) * mx;
+  // if (dir && vecEquals(dir, )) eyeX = reverseOffset(mx, eyeX, eyeW);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = SNAKE_COLOR;
   snake.forEach(([x, y]) => {
     ctx.fillRect(x * mx, y * my, mx, my);
   });
+
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(
+    snake.at(-1)[0] * mx +
+      (dir && vecEquals(dir, LEFT) ? eyeX : eyeX * 2 + eyeW),
+    snake.at(-1)[1] * my + (dir && vecEquals(dir, UP) ? eyeY : eyeY * 2 + eyeH),
+    eyeW,
+    eyeH
+  );
+  ctx.fillRect(
+    snake.at(-1)[0] * mx +
+      (dir && vecEquals(dir, RIGHT) ? eyeX * 2 + eyeW : eyeX),
+    snake.at(-1)[1] * my +
+      (dir && vecEquals(dir, DOWN) ? eyeY * 2 + eyeH : eyeH),
+    eyeW,
+    eyeH
+  );
+
   ctx.fillStyle = APPLE_COLOR;
   apples.forEach(([x, y]) => {
     ctx.fillRect(x * mx, y * my, mx, my);
   });
-
   scoreText.innerText = score;
+}
+
+function reverseOffset(containerW, offset, w) {
+  return containerW - (offset + w);
 }
 
 function vecSum(v1, v2) {
