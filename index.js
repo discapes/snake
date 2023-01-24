@@ -1,9 +1,13 @@
+const params = new URLSearchParams(location.search);
+const pn = (key, dephault, max) =>
+  Math.min(params.get(key) ? +params.get(key) : dephault, max);
+
 // constants
-const W = 16;
-const H = 16;
+const W = pn("width", 16, Infinity);
+const H = pn("height", 16, Infinity);
 const MAX_SCORE = W * H;
 const MAX_APPLES = W * H - 1;
-const N_APPLES = 3;
+const N_APPLES = pn("fruits", 3, MAX_APPLES);
 const SNAKE_COLOR = "#E8DDB5";
 const APPLE_COLOR = "#EDAFB8";
 const DOWN = [0, 1];
@@ -17,7 +21,6 @@ const id = document.getElementById.bind(document);
 const canvas = id("snake");
 const scoreText = id("score");
 const ctx = canvas.getContext("2d");
-const params = new URLSearchParams(location.search);
 
 // state
 const snake = [[Math.floor(W / 2), Math.floor(H / 2)]];
