@@ -116,7 +116,7 @@ function botMove() {
     dirQue.push(LEFT);
   } else if (y === 0 && x === W - 1) {
     // at the top right turn down
-    dirQue.push(DOWn);
+    dirQue.push(DOWN);
   } else if (y === H - 1 && x === W - 1) {
     // at the bottom right turn left
     dirQue.push(LEFT);
