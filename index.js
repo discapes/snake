@@ -2,6 +2,7 @@
 const W = 16;
 const H = 16;
 const MAX_SCORE = W * H;
+const MAX_APPLES = W * H - 1;
 const N_APPLES = 3;
 const SNAKE_COLOR = "#E8DDB5";
 const APPLE_COLOR = "#EDAFB8";
@@ -9,12 +10,14 @@ const DOWN = [0, 1];
 const UP = [0, -1];
 const LEFT = [-1, 0];
 const RIGHT = [1, 0];
+const FRAMETIME = 100;
 
-// elem
+// IO
 const id = document.getElementById.bind(document);
 const canvas = id("snake");
 const scoreText = id("score");
 const ctx = canvas.getContext("2d");
+const params = new URLSearchParams(location.search);
 
 // state
 const snake = [[Math.floor(W / 2), Math.floor(H / 2)]];
@@ -32,27 +35,27 @@ for (let i = 0; i < N_APPLES; i++) newApple();
 
 draw();
 
-let interval = setInterval(() => {
-  if (over) {
-    clearInterval(interval);
-    return;
-  }
-  if (bot) botMove();
-  const newDir = dirQue.shift();
-  const valid = newDir && !(dir && vecEquals(vecSum(newDir, dir), [0, 0]));
-  if (valid) dir = newDir;
-  if (!dir) return;
-  const head = vecSum(snake.at(-1), dir);
-  moveTo(head);
-  draw();
-}, 100);
+if (params.has("speed")) {
+  window.requestAnimationFrame(function frame() {
+    iter();
+    if (!over) window.requestAnimationFrame(frame);
+  });
+} else {
+  let interval = setInterval(() => {
+    if (over) {
+      clearInterval(interval);
+      return;
+    }
+    iter();
+  }, FRAMETIME);
+}
 
 document.onkeydown = (e) => {
   if (e.key === " ") {
     alert("Game is paused.");
     return;
   } else if (e.key === "b") {
-    bot = true;
+    if (params.has("bot")) bot = !bot;
   }
 
   const keyMap = {
@@ -72,6 +75,17 @@ document.onkeydown = (e) => {
 };
 
 // functions
+
+function iter() {
+  if (bot) botMove();
+  const newDir = dirQue.shift();
+  const valid = newDir && !(dir && vecEquals(vecSum(newDir, dir), [0, 0]));
+  if (valid) dir = newDir;
+  if (!dir) return;
+  const head = vecSum(snake.at(-1), dir);
+  moveTo(head);
+  draw();
+}
 
 function moveTo(head) {
   const appleIndex = apples.findIndex(
