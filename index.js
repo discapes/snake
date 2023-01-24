@@ -1,6 +1,8 @@
 // constants
 const W = 16;
 const H = 16;
+const MAX_SCORE = W * H;
+const N_APPLES = 3;
 const SNAKE_COLOR = "#E8DDB5";
 const APPLE_COLOR = "#EDAFB8";
 const DOWN = [0, 1];
@@ -18,7 +20,6 @@ const ctx = canvas.getContext("2d");
 const snake = [[Math.floor(W / 2), Math.floor(H / 2)]];
 const apples = [];
 
-let score = 0;
 let bot = false;
 let over = false;
 
@@ -27,9 +28,7 @@ let dir;
 
 // effects
 
-newApple();
-newApple();
-newApple();
+for (let i = 0; i < N_APPLES; i++) newApple();
 
 draw();
 
@@ -80,7 +79,7 @@ function moveTo(head) {
   );
 
   if (!emptySpace(head) && appleIndex == -1) {
-    alert("Game over! - Score: " + score);
+    alert("Game over! - Score: " + snake.length);
     over = true;
     location.reload();
   }
@@ -88,7 +87,6 @@ function moveTo(head) {
   snake.push(head);
 
   if (~appleIndex) {
-    score++;
     apples.splice(appleIndex, 1);
     newApple();
   } else {
@@ -97,6 +95,7 @@ function moveTo(head) {
 }
 
 function newApple() {
+  if (snake.length > MAX_SCORE - N_APPLES) return;
   let pos;
   do {
     pos = [Math.floor(Math.random() * W), Math.floor(Math.random() * H)];
@@ -172,7 +171,7 @@ function draw() {
   apples.forEach(([x, y]) => {
     ctx.fillRect(x * mx, y * my, mx, my);
   });
-  scoreText.innerText = score;
+  scoreText.innerText = snake.length;
 }
 
 function reverseOffset(containerW, offset, w) {
